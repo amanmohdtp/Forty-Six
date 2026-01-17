@@ -4,7 +4,7 @@
   "description": "A simple, minimal Node.js library for building WhatsApp chatbots on top of Baileys",
   "main": "lib/index.js",
   "publishConfig": {
-  "access": "public",
+  "access": "public"},
   "bin": {
     "forty-six": "./bin/cli.js"
   },
