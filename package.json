@@ -3,8 +3,6 @@
   "version": "1.0.0",
   "description": "A simple, minimal Node.js library for building WhatsApp chatbots on top of Baileys",
   "main": "lib/index.js",
-  "publishConfig": {
-  "access": "public"},
   "bin": {
     "forty-six": "./bin/cli.js"
   },
@@ -20,11 +18,11 @@
     "groq",
     "whatsapp-bot"
   ],
-  "author": "amanmohdtp",
+  "author": "",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/amanmohdtp/Forty-Six"
+    "url": "https://github.com/your-username/forty-six"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^6.7.8",
