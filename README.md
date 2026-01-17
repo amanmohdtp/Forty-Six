@@ -1,4 +1,4 @@
-<p align="center">
+<p align="left">
   <img src="https://github.com/amanmohdtp/Forty-Six/blob/2162f82470b10c2e954d3ca107d3e936369484b7/logo.png" width="300" alt="Forty Six Logo">
 </p>
 
