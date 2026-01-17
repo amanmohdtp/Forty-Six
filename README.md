@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/amanmohdtp/Forty-Six/blob/2162f82470b10c2e954d3ca107d3e936369484b7/logo.png" width="500" alt="Forty Six Logo">
+  <img src="https://github.com/amanmohdtp/Forty-Six/blob/2162f82470b10c2e954d3ca107d3e936369484b7/logo.png" width="300" alt="Forty Six Logo">
 </p>
 
 <h1 align="center">Forty Six</h1>
