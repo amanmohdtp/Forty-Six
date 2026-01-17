@@ -1,6 +1,4 @@
-Forty Six 🤖
-
-<p align="center">
+<p align="left">
   <img src="https://github.com/amanmohdtp/Forty-Six/blob/2162f82470b10c2e954d3ca107d3e936369484b7/logo.png" width="300" alt="Forty Six Logo">
 </p>
 
@@ -67,7 +65,7 @@ Edit prompt.txt to customize your AI's personality and behavior.
 node examples/basic-bot.js
 ```
 
-6. Scan QR Code
+6. Connect With Pair Code
 
 Enter the  paircode with WhatsApp → Linked Devices 
 
