@@ -1,158 +1,172 @@
-<p align="left">
+Forty Six 🤖
+
+<p align="center">
   <img src="https://github.com/amanmohdtp/Forty-Six/blob/2162f82470b10c2e954d3ca107d3e936369484b7/logo.png" width="300" alt="Forty Six Logo">
 </p>
 
 <h1 align="center">Forty Six</h1>
 
 <p align="center">
-  A simple, minimal Node.js library for building WhatsApp chatbots on top of Baileys.
+  <strong>A simple, minimal Node.js framework for building WhatsApp chatbots on top of Baileys</strong>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/npm/v/forty-six">
-  <img src="https://img.shields.io/npm/dm/forty-six">
-  <img src="https://img.shields.io/github/license/amanmohdtp/forty-six">
+  <a href="https://github.com/amanmohdtp/forty-six/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
+  </a>
+  <img src="https://img.shields.io/badge/node-%3E%3D16.0-green" alt="Node Version">
+  <img src="https://img.shields.io/badge/status-active-success" alt="Status">
+  <img src="https://img.shields.io/github/stars/amanmohdtp/forty-six?style=social" alt="GitHub Stars">
 </p>
 
 ---
 
-## ✨ What is Forty Six?
+✨ What is Forty Six?
 
-**Forty Six** is a lightweight abstraction layer over **Baileys**, designed to make WhatsApp bot development stupidly simple.
-
-No complex boilerplate.  
-No 200-file frameworks.  
-Just install, write your prompt or commands, and run.
+Forty Six is a lightweight, open-source WhatsApp bot framework built on top of Baileys. It removes the complexity and boilerplate, letting you focus on building amazing chatbots.
 
 ---
 
-## 🚀 Features
 
-- Built on top of Baileys
-- Clean and minimal API
-- Auto session handling
-- Command & text-based bot support
-- Plug-and-play structure
-- Perfect for AI + WhatsApp bots
-- Beginner friendly, production ready
+📦 Quick Start
 
----
-
-## 📦 Installation
+1. Clone the Repository
 
 ```bash
-npm install forty-six
+git clone https://github.com/amanmohdtp/forty-six.git
+cd forty-six
 ```
-or
+
+2. Install Dependencies
+
 ```bash
-yarn add forty-six
+npm install
 ```
 
----
+3. Set Up Environment
 
-🧠 Basic Usage
+Create a .env file:
 
-```
-const { createBot } = require("forty-six")
-
-createBot({
-  session: "session",
-  prefix: "!",
-  onMessage: async (msg, sock) => {
-    if (msg.body === "!ping") {
-      await sock.sendMessage(msg.from, { text: "pong 🏓" })
-    }
-  }
-})
+```bash
+cp .env.example .env
 ```
 
-Run it:
-
-node index.js
-
-Then Enter Paircode To Whatsapp Bot Number using linked devices option on whatsapp. Done.
-
----
-## 🔑 API Setup (Important)
-
-To use AI features, you **must** get a Groq API key.
-
-1. Create an account at https://console.groq.com  
-2. Generate your API key  
-3. Create a `.env` file in your project root  
-4. Paste your key like this:
+Edit .env and add your Groq API key (get it from console.groq.com):
 
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 ```
 
-That’s it.
-Forty Six will automatically read it from the environment.
+4. Customize Your Prompt (Optional)
 
-⚠️ Don’t hardcode your API key.
-⚠️ Never commit .env to GitHub.
----
+Edit prompt.txt to customize your AI's personality and behavior.
 
-📁 Additional Note
+5. Run the Bot
 
-Put your AI/system prompt inside prompt.txt
-Forty Six takes care of the rest.
+```bash
+node examples/basic-bot.js
+```
 
+6. Scan QR Code
 
----
+Enter the  paircode with WhatsApp → Linked Devices 
 
-🤖 AI Ready
-
-Forty Six is designed to work smoothly with:
-
-Custom AI models
-
-Local LLMs
-
-API-based AI (OpenAI, etc.)
-
-
-Just read your prompt and respond.
-
+Done! Your bot is now running. 🎉
 
 ---
 
-🔒 Powered By
 
-Baileys (WhatsApp Web API)
+🤖 AI Integration
 
-Node.js
+Forty Six comes with built-in Groq AI support:
+
+1. Get API Key: Sign up at console.groq.com
+2. Add to .env: GROQ_API_KEY=your_key_here
+3. Customize Prompt: Edit prompt.txt
+
+---
 
 
-Forty Six does not reinvent the wheel, it simplifies it.
+🔒 Privacy & Security
+
+· No Data Collection: Forty Six doesn't collect or store your data
+· Local Sessions: All WhatsApp sessions are stored locally
+· No Telemetry: No tracking or analytics
+· Open Source: Fully transparent code
+
+Important Notes:
+
+· ⚠️ Keep your .env file private
+· ⚠️ Never share your session files
+· ⚠️ Use responsibly and comply with WhatsApp's Terms of Service
+
+---
+
+
+🤝 Contributing
+
+Contributions are welcome!
+
+Development Setup
+
+```bash
+git clone https://github.com/amanmohdtp/forty-six.git
+cd forty-six
+npm install
+```
 
 
 ---
 
-🛠️ Roadmap
+❓ FAQ
 
-Plugin system
+Q: Do I need to pay for Groq API?
 
-Built-in AI handler
+A: Groq offers free tier with generous limits. Check groq.com/pricing
 
-Multi-device helpers
+Q: Any Payment Requires?
 
-Better error handling
+A: No, completly free
 
-CLI support
+Q: Is this against WhatsApp's ToS?
 
+A: Use at your own risk. Always comply with WhatsApp's Terms of Service.
 
+Q: How do I reset the bot?
+
+A: Delete the session/ folder and restart.
+
+Q: Can I host this 24/7?
+
+A: Yes, use PM2, Docker, or a VPS with persistent storage.
 
 ---
 
-📜 License
+📄 License
 
-MIT License © 2026
-Built with ❤️ for WhatsApp devs
+This project is licensed under the MIT License - see the LICENSE file for details.
 
+---
+
+🙏 Acknowledgments
+
+· Baileys - WhatsApp Web API
+· Groq - AI Inference API
+· All contributors and users of Forty Six
+
+---
+
+📞 Support
+
+· Issues: GitHub Issues
+· Discussions: GitHub Discussions
+· Email: Check GitHub profile
 
 ---
 
 <p align="center">
-  ⭐ If you like this project, give it a star
+  Made with ❤️ for the WhatsApp bot community
+  <br>
+  <br>
+  ⭐ <strong>If you like this project, give it a star!</strong> ⭐
 </p>
