@@ -1,7 +1,7 @@
 /**
  * Forty Six - Example Bot
  * 
- * This is a basic example showing how to use Forty Six
+ * This is a Basic example showing how to use Forty Six
  */
 
 const { createBot } = require('./forty-six');
