@@ -1,6 +1,0 @@
-Replace this file with your logo.png
-
-The bot will send this image when it connects.
-
-Recommended size: 800x400 pixels
-Format: PNG, JPG, or WEBP
