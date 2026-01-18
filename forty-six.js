@@ -1,5 +1,5 @@
 /**
- * Forty Six - A simple, minimal WhatsApp bot library
+ * Forty Six - A simple, minimal WhatsApp Bot library
  * Built on top of Baileys
  */
 
