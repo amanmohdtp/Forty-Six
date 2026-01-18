@@ -5,7 +5,7 @@ const chalk = require('chalk');
 const figlet = require('figlet');
 const boxen = require('boxen');
 
-// If you don't want to add more dependencies, use this version without external packages
+// If you don't want to add more DEPENDECIES, use this version without external packages
 // (See alternative version below)
 
 console.clear();
