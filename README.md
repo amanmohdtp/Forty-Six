@@ -19,93 +19,90 @@
 
 ---
 
-✨ What is Forty Six?
+## ✨ What is Forty Six?
 
 Forty Six is a lightweight, open-source WhatsApp bot framework built on top of Baileys. It removes the complexity and boilerplate, letting you focus on building amazing chatbots.
 
 ---
 
+## 📦 Quick Start
 
-📦 Quick Start
-
-1. Clone the Repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/amanmohdtp/forty-six.git
 cd forty-six
 ```
 
-2. Install Dependencies
+### 2. Install Dependencies
 
 ```bash
 npm install
 ```
 
-3. Set Up Environment
+### 3. Set Up Environment
 
-Create a .env file:
+Create a `.env` file:
 
 ```bash
 cp .env.example .env
 ```
 
-Edit .env and add your Groq API key (get it from console.groq.com):
+Edit `.env` and add your Groq API key (get it from [console.groq.com](https://console.groq.com)):
 
 ```env
 GROQ_API_KEY=your_groq_api_key_here
+PHONE_NUMBER=your_phone_number_here
 ```
 
-4. Customize Your Prompt (Optional)
+### 4. Customize Your Prompt (Optional)
 
-Edit prompt.txt to customize your AI's personality and behavior.
+Edit `prompt.txt` to customize your AI's personality and behavior.
 
-5. Run the Bot
+### 5. Run the Bot
 
 ```bash
 node examples/basic-bot.js
 ```
 
-6. Connect With Pair Code
+### 6. Connect With Pair Code
 
-Enter the  paircode with WhatsApp → Linked Devices 
+Enter the pairing code in WhatsApp → Linked Devices 
 
-Done! Your bot is now running. 🎉
+**Done! Your bot is now running.** 🎉
 
 ---
 
-
-🤖 AI Integration
+## 🤖 AI Integration
 
 Forty Six comes with built-in Groq AI support:
 
-1. Get API Key: Sign up at console.groq.com
-2. Add to .env: GROQ_API_KEY=your_key_here
-3. Customize Prompt: Edit prompt.txt
+1. **Get API Key**: Sign up at [console.groq.com](https://console.groq.com)
+2. **Add to .env**: `GROQ_API_KEY=your_key_here`
+3. **Customize Prompt**: Edit `prompt.txt`
 
 ---
 
+## 🔒 Privacy & Security
 
-🔒 Privacy & Security
+- **No Data Collection**: Forty Six doesn't collect or store your data
+- **Local Sessions**: All WhatsApp sessions are stored locally
+- **No Telemetry**: No tracking or analytics
+- **Open Source**: Fully transparent code
 
-· No Data Collection: Forty Six doesn't collect or store your data
-· Local Sessions: All WhatsApp sessions are stored locally
-· No Telemetry: No tracking or analytics
-· Open Source: Fully transparent code
+**Important Notes:**
 
-Important Notes:
-
-· ⚠️ Keep your .env file private
-· ⚠️ Never share your session files
-· ⚠️ Use responsibly and comply with WhatsApp's Terms of Service
+- ⚠️ Keep your `.env` file private
+- ⚠️ Never share your session files
+- ⚠️ Use responsibly and comply with WhatsApp's Terms of Service
 
 ---
 
-
-🤝 Contributing
+## 🤝 Contributing
 
 Contributions are welcome!
 
-Development Setup
+### Development Setup
 
 ```bash
 git clone https://github.com/amanmohdtp/forty-six.git
@@ -113,52 +110,51 @@ cd forty-six
 npm install
 ```
 
-
 ---
 
-❓ FAQ
+## ❓ FAQ
 
-Q: Do I need to pay for Groq API?
+**Q: Do I need to pay for Groq API?**
 
-A: Groq offers free tier with generous limits. Check groq.com/pricing
+A: Groq offers free tier with generous limits. Check [groq.com/pricing](https://groq.com/pricing)
 
-Q: Any Payment Requires?
+**Q: Any Payment Requires?**
 
-A: No, completly free
+A: No, completely free
 
-Q: Is this against WhatsApp's ToS?
+**Q: Is this against WhatsApp's ToS?**
 
 A: Use at your own risk. Always comply with WhatsApp's Terms of Service.
 
-Q: How do I reset the bot?
+**Q: How do I reset the bot?**
 
-A: Delete the session/ folder and restart.
+A: Delete the `session/` folder and restart.
 
-Q: Can I host this 24/7?
+**Q: Can I host this 24/7?**
 
 A: Yes, use PM2, Docker, or a VPS with persistent storage.
 
 ---
 
-📄 License
+## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-🙏 Acknowledgments
-
-· Baileys - WhatsApp Web API
-· Groq - AI Inference API
-· All contributors and users of Forty Six
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-📞 Support
+## 🙏 Acknowledgments
 
-· Issues: GitHub Issues
-· Discussions: GitHub Discussions
-· Email: Check GitHub profile
+- [Baileys](https://github.com/WhiskeySockets/Baileys) - WhatsApp Web API
+- [Groq](https://groq.com) - AI Inference API
+- All contributors and users of Forty Six
+
+---
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/amanmohdtp/forty-six/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/amanmohdtp/forty-six/discussions)
+- **Email**: Check GitHub profile
 
 ---
 
