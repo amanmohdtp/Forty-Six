@@ -4,10 +4,11 @@
   "description": "A simple, minimal Node.js framework for building WhatsApp chatbots on top of Baileys",
   "main": "lib/index.js",
   "scripts": {
-    "start": "node examples/basic-bot.js",
-    "dev": "node examples/basic-bot.js",
+    "start": "node index.js",
+    "dev": "node index.js",
+    "example": "node examples/basic-bot.js",
     "test": "node examples/minimal-test.js",
-    "postinstall": "node -e \"console.log('🎊 Forty-six dependencies installed successfully!\\n\\n📦 Installed packages:\\n- @whiskeysockets/baileys (WhatsApp Web API)\\n- groq-sdk (AI Integration)\\n- pino (Logging)\\n- qrcode-terminal (QR Display)\\n\\n🚀 Run \\'npm start\\' to launch your WhatsApp bot!\\n📖 Examples in /examples directory\\n')\""
+    "postinstall": "node -e \"const c={r:'\\x1b[0m',g:'\\x1b[32m',y:'\\x1b[33m',b:'\\x1b[34m',c:'\\x1b[36m'};console.log('\\n'+c.c+'╔══════════════════════════════════════╗\\n║'+c.g+'      46 INSTALLED SUCCESSFULLY!    '+c.c+'║\\n╚══════════════════════════════════════╝'+c.r);console.log('\\n'+c.g+'🚀 Whatsapp Bot Framework Ready!'+c.r);console.log(c.y+'\\n📦 Dependencies Installed:'+c.r);console.log('  • @whiskeysockets/baileys');console.log('  • groq-sdk');console.log('  • pino');console.log('  • qrcode-terminal');console.log('  • dotenv');console.log('  • @hapi/boom');console.log(c.b+'\\n🎯 Quick Start:'+c.r);console.log('  npm start        # Start bot');console.log('  npm run example  # Run example');console.log('  npm test         # Test bot');console.log('\\n'+c.g+'💡 Check examples/ directory for usage'+c.r+'\\n');\""
   },
   "keywords": [
     "whatsapp",
