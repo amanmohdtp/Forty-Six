@@ -8,7 +8,7 @@
     "start": "node examples/basic-bot.js",
     "dev": "node examples/basic-bot.js",
     "test": "node examples/minimal-test.js",
-    "postinstall": "node -e \"console.log('✅ Forty-six dependencies installed successfully!\\n\\n📦 Installed packages:\\n- @whiskeysockets/baileys (WhatsApp Web API)\\n- groq-sdk (AI Integration)\\n- pino (Logging)\\n- qrcode-terminal (QR Display)\\n\\n🚀 Run \\'npm start\\' to launch your WhatsApp bot!\\n📖 Examples in /examples directory\\n')\""
+    "postinstall": "node -e \"console.log('🎊 Forty-six dependencies installed successfully!\\n\\n📦 Installed packages:\\n- @whiskeysockets/baileys (WhatsApp Web API)\\n- groq-sdk (AI Integration)\\n- pino (Logging)\\n- qrcode-terminal (QR Display)\\n\\n🚀 Run \\'npm start\\' to launch your WhatsApp bot!\\n📖 Examples in /examples directory\\n')\""
   },
   "keywords": [
     "whatsapp",
