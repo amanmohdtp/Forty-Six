@@ -4,6 +4,7 @@
   "description": "A simple, minimal Node.js framework for building WhatsApp chatbots on top of Baileys",
   "main": "lib/index.js",
   "scripts": {
+    "preinstall": "node scripts/install-message.js",
     "start": "node examples/basic-bot.js",
     "dev": "node examples/basic-bot.js",
     "test": "node examples/minimal-test.js",
