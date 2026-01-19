@@ -7,6 +7,7 @@ import makeWASocket, {
 } from '@whiskeysockets/baileys';
 import pino from 'pino';
 import { MessageHandler } from './lib/message-handler.js';
+import fs from 'fs';
 
 /**
  * Forty-Six WhatsApp Bot
@@ -33,17 +34,17 @@ if (!config.groqApiKey || config.groqApiKey === 'your_groq_api_key_here') {
   process.exit(1);
 }
 
-// Logger setup
+// Logger setup (fixed)
 const logger = pino({
-  level: 'silent', // Set to 'info' for debugging
+  level: 'info',
   transport: {
     target: 'pino-pretty',
     options: {
-      colorize: true,
-      ignore: 'pid,hostname'
+      colorize: true,       // colored logs
+      ignore: 'pid,hostname,time' // removes extra clutter
     }
   }
-});
+});;
 
 // Initialize message handler
 const messageHandler = new MessageHandler(config);
@@ -175,7 +176,6 @@ async function usePairingCode() {
 console.log('\n🚀 Starting Forty-Six Bot...\n');
 
 // Check if session exists
-import fs from 'fs';
 const sessionExists = fs.existsSync('./session/creds.json');
 
 if (sessionExists) {
