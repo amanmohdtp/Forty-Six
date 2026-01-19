@@ -31,7 +31,7 @@ npm install
 
 ### 2. Configure
 
-Create/edit `.env` file:
+Edit `.env` file:
 
 ```env
 # Required
