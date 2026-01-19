@@ -3,11 +3,12 @@ import makeWASocket from '@whiskeysockets/baileys';
 import { 
   DisconnectReason, 
   useMultiFileAuthState,
-  makeCacheableSignalKeyStore,
-  fetchLatestBaileysVersion
+  fetchLatestBaileysVersion,
+  Browsers
 } from '@whiskeysockets/baileys';
 import fs from 'fs';
 import path from 'path';
+import pino from 'pino';
 import { MessageHandler } from './lib/message-handler.js';
 
 /**
@@ -33,6 +34,12 @@ const config = {
 if (!config.groqApiKey || config.groqApiKey === 'your_groq_api_key_here') {
   console.error('❌ Error: GROQ_API_KEY not set in .env file');
   console.error('   Get your API key from: https://console.groq.com');
+  process.exit(1);
+}
+
+if (!config.phoneNumber || config.phoneNumber === 'your_phone_number_here') {
+  console.error('❌ Error: PHONE_NUMBER not set in .env file');
+  console.error('   Add PHONE_NUMBER=919876543210 (without +)');
   process.exit(1);
 }
 
@@ -66,26 +73,12 @@ const startBot = async () => {
     const { state, saveCreds } = await useMultiFileAuthState(authDir);
     const { version } = await fetchLatestBaileysVersion();
     
-    // Silent logger
-    const logger = {
-      info: () => {},
-      warn: () => {},
-      error: () => {},
-      debug: () => {},
-      trace: () => {},
-      fatal: () => {},
-      child: () => logger
-    };
-
     const sock = makeWASocket({
       version,
-      logger,
+      logger: pino({ level: 'silent' }),
       printQRInTerminal: false,
-      auth: {
-        creds: state.creds,
-        keys: makeCacheableSignalKeyStore(state.keys, logger),
-      },
-      browser: ['Forty-Six Bot', 'Chrome', '1.0.0'],
+      auth: state, // ✅ THIS IS THE KEY FIX - use state directly like the working bot
+      browser: Browsers.ubuntu('Chrome'),
       getMessage: async (key) => {
         return { conversation: 'Message not found' };
       },
@@ -99,25 +92,23 @@ const startBot = async () => {
 
     /* ========== CONNECTION HANDLER ========== */
     sock.ev.on('connection.update', async (update) => {
-      const { connection, lastDisconnect } = update;
+      const { connection, lastDisconnect, isNewLogin, qr } = update;
 
-      // REQUEST PAIRING CODE WHEN CONNECTION STARTS - THIS IS THE KEY
+      // Request pairing code when connection starts
       if (connection === 'connecting' && !state.creds.registered && !pairingCodeSent) {
         console.log('🔄 Socket connecting...');
         
         // Give socket time to be ready, then request code
-        setTimeout(async () => {
+        const requestPairing = async () => {
           try {
             if (!config.phoneNumber) {
-              console.error('❌ PHONE_NUMBER is not set in .env file!');
-              console.error('   Example: PHONE_NUMBER=919862466381');
+              console.error('❌ PHONE_NUMBER is not set!');
               process.exit(1);
             }
 
             const phoneNumber = config.phoneNumber.replace(/[^0-9]/g, '');
             console.log(`📲 Requesting pairing code for +${phoneNumber}...`);
             
-            // THIS IS THE ACTUAL PAIRING CODE REQUEST
             const code = await sock.requestPairingCode(phoneNumber);
             pairingCodeSent = true;
             
@@ -143,25 +134,12 @@ const startBot = async () => {
               console.log('   1. Unstable internet connection');
               console.log('   2. Firewall blocking WhatsApp servers');
               console.log('   3. Old Baileys version\n');
-              
-              // Retry after 5 seconds
-              setTimeout(async () => {
-                try {
-                  const phoneNumber = config.phoneNumber.replace(/[^0-9]/g, '');
-                  console.log('🔄 Retrying pairing code request...');
-                  const code = await sock.requestPairingCode(phoneNumber);
-                  pairingCodeSent = true;
-                  
-                  console.log('\n' + '='.repeat(50));
-                  console.log('  📱 PAIRING CODE: ' + code);
-                  console.log('='.repeat(50) + '\n');
-                } catch (retryErr) {
-                  console.error('❌ Retry also failed:', retryErr.message);
-                }
-              }, 5000);
             }
           }
-        }, 3000); // Wait 3 seconds for socket to be ready
+        };
+
+        // Wait a bit for socket initialization
+        setTimeout(requestPairing, 5000);
       }
 
       if (connection === 'close') {
@@ -198,16 +176,33 @@ const startBot = async () => {
         console.log(`  ⏰ Time: ${new Date().toLocaleString()}`);
         console.log('='.repeat(50) + '\n');
 
-        // Save session ID
-        try {
-          if (fs.existsSync(credsFile)) {
+        // Generate or load session ID
+        let sessionId;
+        if (fs.existsSync(credsFile)) {
+          try {
             const credsData = JSON.parse(fs.readFileSync(credsFile, 'utf8'));
-            credsData.SESSION = 'FortySix-' + Date.now().toString(36);
-            fs.writeFileSync(credsFile, JSON.stringify(credsData, null, 2));
+            if (credsData.SESSION) {
+              sessionId = credsData.SESSION;
+            }
+          } catch (err) {
+            // Ignore
           }
-        } catch (err) {
-          // Ignore
         }
+        
+        if (!sessionId) {
+          sessionId = 'FortySix~' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+          try {
+            const credsData = fs.existsSync(credsFile) 
+              ? JSON.parse(fs.readFileSync(credsFile, 'utf8')) 
+              : {};
+            credsData.SESSION = sessionId;
+            fs.writeFileSync(credsFile, JSON.stringify(credsData, null, 2));
+          } catch (err) {
+            console.error('⚠️  Could not save session');
+          }
+        }
+
+        console.log(`🔑 Session ID: ${sessionId}\n`);
 
         console.log('⚙️  Configuration:');
         console.log(`   • Command Prefix: ${config.prefixCommands}`);
@@ -218,17 +213,18 @@ const startBot = async () => {
         console.log(`   • Self Only Mode: ${config.aiSelfOnly ? '✅' : '❌'}`);
         console.log(`\n🤖 Bot is ready! Send "${config.prefixCommands}help" for commands\n`);
 
-        // Send welcome message to self
+        // Send success message
         try {
           const jid = sock.user.id;
           await sock.sendMessage(jid, { 
             text: `✅ *${config.BOT_NAME} Online!*\n\n` +
+                  `🔑 Session: \`${sessionId}\`\n` +
                   `📱 Number: ${sock.user.id.split(':')[0]}\n` +
                   `⏰ Connected: ${new Date().toLocaleString()}\n\n` +
                   `Type ${config.prefixCommands}help for commands`
           });
         } catch (err) {
-          // Ignore welcome message errors
+          console.log('⚠️  Could not send welcome message');
         }
       }
     });
@@ -242,7 +238,7 @@ const startBot = async () => {
           await messageHandler.handleMessage(sock, message);
         }
       } catch (err) {
-        console.error('Message error:', err.message);
+        console.error('❌ Message error:', err.message);
       }
     });
 
@@ -257,7 +253,7 @@ const startBot = async () => {
 /* ========== STARTUP ========== */
 console.log(`
 ╔════════════════════════════════════╗
-║     🤖 ${config.BOT_NAME}           ║
+║     🤖 ${config.BOT_NAME.padEnd(25)}║
 ║     Starting...                    ║
 ╚════════════════════════════════════╝
 `);
@@ -268,19 +264,11 @@ if (alreadyAuthenticated) {
   console.log('✓ Found existing session, connecting...\n');
 } else {
   console.log('⚠️  No session found, will request pairing code...\n');
-  
-  // Check if phone number is set
-  if (!config.phoneNumber) {
-    console.error('❌ Error: PHONE_NUMBER not set in .env file');
-    console.error('   Add PHONE_NUMBER=your-number to your .env file');
-    console.error('   Example: PHONE_NUMBER=919862466381 (without +)');
-    process.exit(1);
-  }
 }
 
 // Start bot
 startBot().catch(err => {
-  console.error('Startup failed:', err);
+  console.error('❌ Startup failed:', err);
   process.exit(1);
 });
 
