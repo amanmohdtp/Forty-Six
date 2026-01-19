@@ -1,13 +1,14 @@
-require('dotenv').config();
-const makeWASocket = require('@whiskeysockets/baileys').default;
-const { 
+import 'dotenv/config';
+import makeWASocket from '@whiskeysockets/baileys';
+import { 
   DisconnectReason, 
   useMultiFileAuthState,
   makeCacheableSignalKeyStore,
   fetchLatestBaileysVersion
-} = require('@whiskeysockets/baileys');
-const fs = require('fs');
-const path = require('path');
+} from '@whiskeysockets/baileys';
+import fs from 'fs';
+import path from 'path';
+import { MessageHandler } from './lib/message-handler.js';
 
 /**
  * Forty-Six WhatsApp Bot
@@ -57,8 +58,7 @@ process.on('uncaughtException', (err) => {
 let pairingCodeSent = false;
 let connectionAttempts = 0;
 
-// Initialize message handler (you'll need to adjust this for CommonJS)
-const { MessageHandler } = require('./lib/message-handler');
+// Initialize message handler
 const messageHandler = new MessageHandler(config);
 
 const startBot = async () => {
@@ -66,7 +66,7 @@ const startBot = async () => {
     const { state, saveCreds } = await useMultiFileAuthState(authDir);
     const { version } = await fetchLatestBaileysVersion();
     
-    // Silent logger - like in working example
+    // Silent logger
     const logger = {
       info: () => {},
       warn: () => {},
