@@ -1,43 +1,28 @@
 {
   "name": "forty-six",
-  "version": "1.0.0",
-  "description": "A simple, minimal Node.js framework for building WhatsApp chatbots on top of Baileys",
-  "main": "lib/index.js",
+  "version": "2.0.0",
+  "description": "A configurable WhatsApp AI chatbot built on Baileys and Groq",
+  "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "node index.js",
-    "example": "node examples/basic-bot.js",
-    "test": "node examples/minimal-test.js",
-    "postinstall": "node -e \"const c={r:'\\x1b[0m',g:'\\x1b[32m',y:'\\x1b[33m',b:'\\x1b[34m',c:'\\x1b[36m'};console.log('\\n'+c.c+'╔══════════════════════════════════════╗\\n║'+c.g+'      46 INSTALLED SUCCESSFULLY!    '+c.c+'║\\n╚══════════════════════════════════════╝'+c.r);console.log('\\n'+c.g+'🚀 Whatsapp Bot Framework Ready!'+c.r);console.log(c.y+'\\n📦 Dependencies Installed:'+c.r);console.log('  • @whiskeysockets/baileys');console.log('  • groq-sdk');console.log('  • pino');console.log('  • qrcode-terminal');console.log('  • dotenv');console.log('  • @hapi/boom');console.log(c.b+'\\n🎯 Quick Start:'+c.r);console.log('  npm start        # Start bot');console.log('  npm run example  # Run example');console.log('  npm test         # Test bot');console.log('\\n'+c.g+'💡 Check examples/ directory for usage'+c.r+'\\n');\""
+    "dev": "node --watch index.js"
   },
   "keywords": [
     "whatsapp",
     "bot",
-    "baileys",
     "chatbot",
     "ai",
     "groq",
-    "whatsapp-bot",
-    "opensource"
+    "baileys"
   ],
-  "author": "",
+  "author": "amanmohdtp",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/amanmohdtp/forty-six.git"
-  },
-  "bugs": {
-    "url": "https://github.com/amanmohdtp/forty-six/issues"
-  },
-  "homepage": "https://github.com/amanmohdtp/forty-six#readme",
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.7.8",
-    "@hapi/boom": "^10.0.1",
-    "pino": "^8.19.0",
-    "qrcode-terminal": "^0.12.0",
+    "@whiskeysockets/baileys": "^6.7.9",
     "dotenv": "^16.4.5",
-    "groq-sdk": "^0.3.0",
-    "chalk": "^4.1.2"
+    "pino": "^9.5.0",
+    "qrcode-terminal": "^0.12.0"
   },
   "engines": {
     "node": ">=16.0.0"
