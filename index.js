@@ -9,7 +9,7 @@ const path = require('path');
 const chalk = require('chalk');
 const { default: makeWASocket, DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion, Browsers } = require('@whiskeysockets/baileys');
 const pino = require('pino');
-const GroqAI = require('../lib/groq-ai');
+const GroqAI = require('./lib/groq-ai');
 
 // Check environment
 if (!process.env.GROQ_API_KEY) {
