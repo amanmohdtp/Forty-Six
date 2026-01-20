@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import makeWASocket from '@whiskeysockets/baileys';
-import { 
-  DisconnectReason, 
+import {
+  DisconnectReason,
   useMultiFileAuthState,
   fetchLatestBaileysVersion,
   Browsers
@@ -52,7 +52,7 @@ const startBot = async () => {
   try {
     const { state, saveCreds } = await useMultiFileAuthState(authDir);
     const { version } = await fetchLatestBaileysVersion();
-    
+
     const sock = makeWASocket({
       version,
       logger: pino({ level: 'fatal' }),
@@ -73,13 +73,13 @@ const startBot = async () => {
 
       if (connection === 'connecting' && !state.creds.registered && !pairingCodeSent) {
         console.log('🔄 Connecting...');
-        
+
         setTimeout(async () => {
           try {
             const phoneNumber = config.phoneNumber.replace(/[^0-9]/g, '');
             const code = await sock.requestPairingCode(phoneNumber);
             pairingCodeSent = true;
-            
+
             console.log('\n' + '═'.repeat(40));
             console.log(`  📱 PAIRING CODE: ${code}`);
             console.log('═'.repeat(40));
@@ -87,7 +87,7 @@ const startBot = async () => {
             console.log('2. Link a Device → Phone Number');
             console.log(`3. Enter: ${code}`);
             console.log('⏱️  60 seconds to enter!\n');
-          } catch (err) {
+          } catch {
             pairingCodeSent = false;
             console.error('❌ Pairing failed');
           }
@@ -96,25 +96,23 @@ const startBot = async () => {
 
       if (connection === 'close') {
         const code = lastDisconnect?.error?.output?.statusCode;
-        
+
         if (code === DisconnectReason.loggedOut) {
           console.log('\n❌ Logged out. Delete "session" folder.\n');
           process.exit(0);
         }
-        
-        if (code !== DisconnectReason.loggedOut) {
-          connectionAttempts++;
-          const delay = Math.min(connectionAttempts * 3000, 15000);
-          console.log(`🔄 Reconnecting in ${delay/1000}s...`);
-          pairingCodeSent = false;
-          setTimeout(() => startBot(), delay);
-        }
-      } 
-      
+
+        connectionAttempts++;
+        const delay = Math.min(connectionAttempts * 3000, 15000);
+        console.log(`🔄 Reconnecting in ${delay / 1000}s...`);
+        pairingCodeSent = false;
+        setTimeout(startBot, delay);
+      }
+
       if (connection === 'open') {
         connectionAttempts = 0;
         pairingCodeSent = false;
-        
+
         console.log('\n' + '═'.repeat(40));
         console.log('  ✅ CONNECTED SUCCESSFULLY!');
         console.log('═'.repeat(40));
@@ -123,25 +121,19 @@ const startBot = async () => {
         console.log(`  ⏰ Time: ${new Date().toLocaleTimeString()}`);
         console.log('═'.repeat(40) + '\n');
 
-        // Save session
         try {
-          let sessionId = 'FS~' + Date.now().toString(36);
-          const creds = fs.existsSync(credsFile) 
-            ? JSON.parse(fs.readFileSync(credsFile, 'utf8')) 
+          const creds = fs.existsSync(credsFile)
+            ? JSON.parse(fs.readFileSync(credsFile, 'utf8'))
             : {};
-          creds.SESSION = sessionId;
+          creds.SESSION = 'FS~' + Date.now().toString(36);
           fs.writeFileSync(credsFile, JSON.stringify(creds, null, 2));
-        } catch (err) {}
+        } catch {}
 
-        console.log('⚙️  Configuration:');
-        console.log(`   • Command Prefix: ${config.prefixCommands}`);
-        console.log(`   • AI Model: ${config.aiModel}`);
-        console.log(`   • AI in Groups: ${config.aiInGroups ? '✅' : '❌'}`);
-        console.log(`   • AI in DMs: ${config.aiInDM ? '✅' : '❌'}\n`);
-        console.log('🤖 Bot Ready! Listening for messages...\n');
+        console.log('🤖 Bot Ready! Listening...\n');
 
-        // Send success message with image
-        const welcomeImage = 'https://raw.githubusercontent.com/amanmohdtp/Forty-Six/2162f82470b10c2e954d3ca107d3e936369484b7/logo.png'
+        try {
+          const welcomeImage =
+            'https://raw.githubusercontent.com/amanmohdtp/Forty-Six/2162f82470b10c2e954d3ca107d3e936369484b7/logo.png';
 
           const welcomeText = `╔═══════════════════════════╗
 ║  ✅ *BOT CONNECTED!*        ║
@@ -160,19 +152,13 @@ const startBot = async () => {
 
 ━━━━━━━━━━━━━━━━━━━━
 🔗 *Repository:*
-https://github.com/amanmohdtp/Forty-Six.git
+https://github.com/amanmohdtp/Forty-Six.git`;
 
-_Powered by Groq AI_`;
-
-          if (welcomeImage) {
-            await sock.sendMessage(sock.user.id, {
-              image: { url: welcomeImage },
-              caption: welcomeText
-            });
-          } else {
-            await sock.sendMessage(sock.user.id, { text: welcomeText });
-          }
-        } catch (err) {
+          await sock.sendMessage(sock.user.id, welcomeImage
+            ? { image: { url: welcomeImage }, caption: welcomeText }
+            : { text: welcomeText }
+          );
+        } catch {
           console.log('⚠️  Could not send welcome message');
         }
       }
@@ -180,7 +166,6 @@ _Powered by Groq AI_`;
 
     sock.ev.on('messages.upsert', async ({ messages, type }) => {
       if (type !== 'notify') return;
-      
       for (const msg of messages) {
         messageHandler.handleMessage(sock, msg).catch(() => {});
       }
@@ -195,19 +180,13 @@ _Powered by Groq AI_`;
     });
 
     return sock;
-  } catch (err) {
+  } catch {
     console.error('❌ Fatal error. Retrying in 15s...');
-    setTimeout(() => startBot(), 15000);
+    setTimeout(startBot, 15000);
   }
 };
 
-console.log(`
-╔═══════════════════════════╗
-║  🤖 ${config.BOT_NAME.padEnd(20)} ║
-║  Starting...              ║
-╚═══════════════════════════╝
-`);
-
+console.log(`🤖 ${config.BOT_NAME} starting...`);
 startBot();
 
 process.on('SIGINT', () => {
