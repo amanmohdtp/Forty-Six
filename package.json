@@ -1,7 +1,7 @@
 {
   "name": "forty-six",
   "version": "2.0.0",
-  "description": "A configurable WhatsApp AI chatbot built on Baileys and Groq",
+  "description": "A Configurable WhatsApp AI chatbot built on Baileys and Groq",
   "main": "index.js",
   "type": "module",
   "scripts": {
