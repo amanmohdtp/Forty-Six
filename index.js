@@ -41,8 +41,12 @@ if (!fs.existsSync(authDir)) {
   fs.mkdirSync(authDir, { recursive: true });
 }
 
-process.on('unhandledRejection', () => {});
-process.on('uncaughtException', () => {});
+process.on('unhandledRejection', (err) => {
+  console.error('❌ Unhandled Rejection:', err);
+});
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err);
+});
 
 let pairingCodeSent = false;
 let connectionAttempts = 0;
@@ -87,9 +91,9 @@ const startBot = async () => {
             console.log('2. Link a Device → Phone Number');
             console.log(`3. Enter: ${code}`);
             console.log('⏱️  60 seconds to enter!\n');
-          } catch {
+          } catch (err) {
             pairingCodeSent = false;
-            console.error('❌ Pairing failed');
+            console.error('❌ Pairing failed:', err.message);
           }
         }, 3000);
       }
@@ -127,9 +131,11 @@ const startBot = async () => {
             : {};
           creds.SESSION = 'FS~' + Date.now().toString(36);
           fs.writeFileSync(credsFile, JSON.stringify(creds, null, 2));
-        } catch {}
+        } catch (err) {
+          console.error('⚠️  Could not update creds:', err.message);
+        }
 
-        console.log('🤖 Bot Ready! Listening...\n');
+        console.log('🤖 Bot Ready! Listening for messages...\n');
 
         try {
           const welcomeImage =
@@ -154,34 +160,50 @@ const startBot = async () => {
 🔗 *Repository:*
 https://github.com/amanmohdtp/Forty-Six.git`;
 
-          await sock.sendMessage(sock.user.id, welcomeImage
-            ? { image: { url: welcomeImage }, caption: welcomeText }
-            : { text: welcomeText }
-          );
-        } catch {
-          console.log('⚠️  Could not send welcome message');
+          await sock.sendMessage(sock.user.id, {
+            image: { url: welcomeImage },
+            caption: welcomeText
+          });
+          
+          console.log('✅ Welcome message sent\n');
+        } catch (err) {
+          console.log('⚠️  Could not send welcome message:', err.message);
         }
       }
     });
 
+    // FIXED: Proper message event handling
     sock.ev.on('messages.upsert', async ({ messages, type }) => {
       if (type !== 'notify') return;
+      
       for (const msg of messages) {
-        messageHandler.handleMessage(sock, msg).catch(() => {});
+        // Process each message
+        try {
+          await messageHandler.handleMessage(sock, msg);
+        } catch (err) {
+          console.error('❌ Message handling error:', err.message);
+        }
       }
     });
 
+    // Auto-reject calls
     sock.ev.on('call', async (calls) => {
       for (const call of calls) {
         if (call.status === 'offer') {
-          await sock.rejectCall(call.id, call.from);
+          try {
+            await sock.rejectCall(call.id, call.from);
+            console.log(`📞 Rejected call from ${call.from}`);
+          } catch (err) {
+            console.error('❌ Error rejecting call:', err.message);
+          }
         }
       }
     });
 
     return sock;
-  } catch {
-    console.error('❌ Fatal error. Retrying in 15s...');
+  } catch (err) {
+    console.error('❌ Fatal error:', err.message);
+    console.log('Retrying in 15s...');
     setTimeout(startBot, 15000);
   }
 };
@@ -190,6 +212,6 @@ console.log(`🤖 ${config.BOT_NAME} starting...`);
 startBot();
 
 process.on('SIGINT', () => {
-  console.log('\n👋 Shutting down...');
+  console.log('\n👋 Shutting down gracefully...');
   process.exit(0);
 });
