@@ -26,12 +26,12 @@ const config = {
 };
 
 if (!config.groqApiKey || config.groqApiKey === 'your_groq_api_key_here') {
-  console.error('❌ GROQ_API_KEY not set in .env');
+  console.error('ERROR: GROQ_API_KEY not set in .env');
   process.exit(1);
 }
 
 if (!config.phoneNumber || config.phoneNumber === 'your_phone_number_here') {
-  console.error('❌ PHONE_NUMBER not set in .env');
+  console.error('ERROR: PHONE_NUMBER not set in .env');
   process.exit(1);
 }
 
@@ -43,10 +43,10 @@ if (!fs.existsSync(authDir)) {
 }
 
 process.on('unhandledRejection', (err) => {
-  console.error('❌ Unhandled Rejection:', err);
+  console.error('Unhandled Rejection:', err.message);
 });
 process.on('uncaughtException', (err) => {
-  console.error('❌ Uncaught Exception:', err);
+  console.error('Uncaught Exception:', err.message);
 });
 
 let pairingCodeSent = false;
@@ -80,7 +80,7 @@ const startBot = async () => {
       const { connection, lastDisconnect } = update;
 
       if (connection === 'connecting' && !state.creds.registered && !pairingCodeSent) {
-        console.log('🔄 Connecting...');
+        console.log('Connecting...');
 
         setTimeout(async () => {
           try {
@@ -88,16 +88,16 @@ const startBot = async () => {
             const code = await sock.requestPairingCode(phoneNumber);
             pairingCodeSent = true;
 
-            console.log('\n' + '═'.repeat(40));
-            console.log(`  📱 PAIRING CODE: ${code}`);
-            console.log('═'.repeat(40));
+            console.log('\n' + '='.repeat(40));
+            console.log(`PAIRING CODE: ${code}`);
+            console.log('='.repeat(40));
             console.log('1. WhatsApp → Settings → Linked Devices');
             console.log('2. Link a Device → Phone Number');
             console.log(`3. Enter: ${code}`);
-            console.log('⏱️  60 seconds to enter!\n');
+            console.log('Code expires in 60 seconds\n');
           } catch (err) {
             pairingCodeSent = false;
-            console.error('❌ Pairing failed:', err.message);
+            console.error('Pairing failed:', err.message);
           }
         }, 5000);
       }
@@ -106,14 +106,14 @@ const startBot = async () => {
         const code = lastDisconnect?.error?.output?.statusCode;
 
         if (code === DisconnectReason.loggedOut) {
-          console.log('\n❌ Logged out. Delete "session" folder.\n');
+          console.log('\nLogged out. Deleting session folder.\n');
           fs.rmSync(authDir, { recursive: true, force: true });
           process.exit(0);
         }
 
         connectionAttempts++;
         const delay = Math.min(connectionAttempts * 2000, 30000);
-        console.log(`🔄 Reconnecting in ${delay / 1000}s...`);
+        console.log(`Reconnecting in ${delay / 1000}s... (Attempt ${connectionAttempts})`);
         pairingCodeSent = false;
         setTimeout(startBot, delay);
       }
@@ -122,13 +122,13 @@ const startBot = async () => {
         connectionAttempts = 0;
         pairingCodeSent = false;
 
-        console.log('\n' + '═'.repeat(40));
-        console.log('  ✅ CONNECTED SUCCESSFULLY!');
-        console.log('═'.repeat(40));
-        console.log(`  📱 Number: +${sock.user.id.split(':')[0]}`);
-        console.log(`  👤 Name: ${sock.user.name || 'User'}`);
-        console.log(`  ⏰ Time: ${new Date().toLocaleTimeString()}`);
-        console.log('═'.repeat(40) + '\n');
+        console.log('\n' + '='.repeat(40));
+        console.log('BOT CONNECTED');
+        console.log('='.repeat(40));
+        console.log(`Number: +${sock.user.id.split(':')[0]}`);
+        console.log(`Name: ${sock.user.name || 'User'}`);
+        console.log(`Time: ${new Date().toLocaleString()}`);
+        console.log('='.repeat(40) + '\n');
 
         let sessionId;
         try {
@@ -145,47 +145,38 @@ const startBot = async () => {
           }
         } catch (err) {
           sessionId = 'FS~' + Date.now().toString(36);
-          console.error('⚠️  Could not update creds:', err.message);
+          console.error('Could not save session:', err.message);
         }
 
-        console.log(`🔑 Session: ${sessionId}`);
-        console.log('🤖 Bot Ready! Listening for messages...\n');
+        console.log(`Session: ${sessionId}`);
+        console.log('Bot ready! Listening for messages...\n');
 
         setTimeout(async () => {
           try {
             const botJid = sock.user.id.split(':')[0] + '@s.whatsapp.net';
             const welcomeImage = 'https://raw.githubusercontent.com/amanmohdtp/Forty-Six/2162f82470b10c2e954d3ca107d3e936369484b7/logo.png';
 
-            const welcomeText = `╔═══════════════════════════╗
-║  ✅ *BOT CONNECTED!*        ║
-╚═══════════════════════════╝
+            const welcomeText = `${config.BOT_NAME} - Connected
 
-🤖 *${config.BOT_NAME}*
+Number: +${sock.user.id.split(':')[0]}
+Time: ${new Date().toLocaleString()}
+Model: ${config.aiModel}
+Session: ${sessionId}
 
-📱 *Number:* +${sock.user.id.split(':')[0]}
-⏰ *Time:* ${new Date().toLocaleString()}
-🔧 *Model:* ${config.aiModel}
-🔑 *Session:* \`${sessionId}\`
-
-━━━━━━━━━━━━━━━━━━━━
-*Quick Start:*
+Quick Start:
 • Send ${config.prefixCommands}help for commands
 • ${config.prefixQueriesEnabled ? `Use ${config.prefixQueries} for AI queries` : 'Just send any message for AI'}
 
-━━━━━━━━━━━━━━━━━━━━
-🔗 *Repository:*
-https://github.com/amanmohdtp/Forty-Six.git
-
-_Powered by Groq AI & WhatsApp_`;
+GitHub: https://github.com/amanmohdtp/Forty-Six.git`;
 
             await sock.sendMessage(botJid, {
               image: { url: welcomeImage },
               caption: welcomeText
             });
             
-            console.log('✅ Welcome message sent to self\n');
+            console.log('Welcome message sent\n');
           } catch (err) {
-            console.log('⚠️  Could not send welcome message:', err.message);
+            console.log('Could not send welcome message:', err.message);
           }
         }, 5000);
       }
@@ -198,7 +189,7 @@ _Powered by Groq AI & WhatsApp_`;
         try {
           await messageHandler.handleMessage(sock, msg);
         } catch (err) {
-          console.error('❌ Message handling error:', err.message);
+          console.error('Message handling error:', err.message);
         }
       }
     });
@@ -208,9 +199,9 @@ _Powered by Groq AI & WhatsApp_`;
         if (call.status === 'offer') {
           try {
             await sock.rejectCall(call.id, call.from);
-            console.log(`📞 Rejected call from ${call.from}`);
+            console.log(`Rejected call from ${call.from}`);
           } catch (err) {
-            console.error('❌ Error rejecting call:', err.message);
+            console.error('Error rejecting call:', err.message);
           }
         }
       }
@@ -218,25 +209,25 @@ _Powered by Groq AI & WhatsApp_`;
 
     return sock;
   } catch (err) {
-    console.error('❌ Fatal error:', err.message);
+    console.error('Fatal error:', err.message);
     console.log('Retrying in 15s...');
     setTimeout(startBot, 15000);
   }
 };
 
 console.clear();
-console.log(`\n🤖 ${config.BOT_NAME} starting...\n`);
+console.log(`\n${config.BOT_NAME} starting...\n`);
 
 const alreadyAuthenticated = fs.existsSync(path.join(authDir, 'creds.json'));
 if (alreadyAuthenticated) {
-  console.log('✓ Found existing session, connecting...\n');
+  console.log('Found existing session, connecting...\n');
 } else {
-  console.log('⚠️  No session found, will request pairing code...\n');
+  console.log('No session found, will request pairing code...\n');
 }
 
 startBot();
 
 process.on('SIGINT', () => {
-  console.log('\n👋 Shutting down gracefully...');
+  console.log('\nShutting down...');
   process.exit(0);
 });
