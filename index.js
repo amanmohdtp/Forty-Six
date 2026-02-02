@@ -4,7 +4,8 @@ import {
   DisconnectReason,
   useMultiFileAuthState,
   fetchLatestBaileysVersion,
-  Browsers
+  Browsers,
+  makeCacheableSignalKeyStore
 } from '@whiskeysockets/baileys';
 import fs from 'fs';
 import path from 'path';
@@ -59,15 +60,18 @@ const startBot = async () => {
 
     const sock = makeWASocket({
       version,
-      logger: pino({ level: 'fatal' }),
+      logger: pino({ level: 'silent' }),
       printQRInTerminal: false,
-      auth: state,
+      auth: {
+        creds: state.creds,
+        keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' }))
+      },
       browser: Browsers.ubuntu('Chrome'),
       syncFullHistory: false,
       markOnlineOnConnect: true,
-      fireInitQueries: false,
-      generateHighQualityLinkPreview: false,
-      getMessage: async () => ({ conversation: '' })
+      generateHighQualityLinkPreview: true,
+      getMessage: async () => undefined,
+      shouldIgnoreJid: jid => jid === 'status@broadcast'
     });
 
     sock.ev.on('creds.update', saveCreds);
@@ -95,7 +99,7 @@ const startBot = async () => {
             pairingCodeSent = false;
             console.error('❌ Pairing failed:', err.message);
           }
-        }, 3000);
+        }, 5000);
       }
 
       if (connection === 'close') {
@@ -103,11 +107,12 @@ const startBot = async () => {
 
         if (code === DisconnectReason.loggedOut) {
           console.log('\n❌ Logged out. Delete "session" folder.\n');
+          fs.rmSync(authDir, { recursive: true, force: true });
           process.exit(0);
         }
 
         connectionAttempts++;
-        const delay = Math.min(connectionAttempts * 3000, 15000);
+        const delay = Math.min(connectionAttempts * 2000, 30000);
         console.log(`🔄 Reconnecting in ${delay / 1000}s...`);
         pairingCodeSent = false;
         setTimeout(startBot, delay);
@@ -120,36 +125,47 @@ const startBot = async () => {
         console.log('\n' + '═'.repeat(40));
         console.log('  ✅ CONNECTED SUCCESSFULLY!');
         console.log('═'.repeat(40));
-        console.log(`  📱 Number: ${sock.user.id.split(':')[0]}`);
+        console.log(`  📱 Number: +${sock.user.id.split(':')[0]}`);
         console.log(`  👤 Name: ${sock.user.name || 'User'}`);
         console.log(`  ⏰ Time: ${new Date().toLocaleTimeString()}`);
         console.log('═'.repeat(40) + '\n');
 
+        let sessionId;
         try {
           const creds = fs.existsSync(credsFile)
             ? JSON.parse(fs.readFileSync(credsFile, 'utf8'))
             : {};
-          creds.SESSION = 'FS~' + Date.now().toString(36);
-          fs.writeFileSync(credsFile, JSON.stringify(creds, null, 2));
+          
+          if (creds.SESSION) {
+            sessionId = creds.SESSION;
+          } else {
+            sessionId = 'FS~' + Date.now().toString(36);
+            creds.SESSION = sessionId;
+            fs.writeFileSync(credsFile, JSON.stringify(creds, null, 2));
+          }
         } catch (err) {
+          sessionId = 'FS~' + Date.now().toString(36);
           console.error('⚠️  Could not update creds:', err.message);
         }
 
+        console.log(`🔑 Session: ${sessionId}`);
         console.log('🤖 Bot Ready! Listening for messages...\n');
 
-        try {
-          const welcomeImage =
-            'https://raw.githubusercontent.com/amanmohdtp/Forty-Six/2162f82470b10c2e954d3ca107d3e936369484b7/logo.png';
+        setTimeout(async () => {
+          try {
+            const botJid = sock.user.id.split(':')[0] + '@s.whatsapp.net';
+            const welcomeImage = 'https://raw.githubusercontent.com/amanmohdtp/Forty-Six/2162f82470b10c2e954d3ca107d3e936369484b7/logo.png';
 
-          const welcomeText = `╔═══════════════════════════╗
+            const welcomeText = `╔═══════════════════════════╗
 ║  ✅ *BOT CONNECTED!*        ║
 ╚═══════════════════════════╝
 
 🤖 *${config.BOT_NAME}*
 
-📱 *Number:* ${sock.user.id.split(':')[0]}
+📱 *Number:* +${sock.user.id.split(':')[0]}
 ⏰ *Time:* ${new Date().toLocaleString()}
 🔧 *Model:* ${config.aiModel}
+🔑 *Session:* \`${sessionId}\`
 
 ━━━━━━━━━━━━━━━━━━━━
 *Quick Start:*
@@ -158,26 +174,27 @@ const startBot = async () => {
 
 ━━━━━━━━━━━━━━━━━━━━
 🔗 *Repository:*
-https://github.com/amanmohdtp/Forty-Six.git`;
+https://github.com/amanmohdtp/Forty-Six.git
 
-          await sock.sendMessage(sock.user.id, {
-            image: { url: welcomeImage },
-            caption: welcomeText
-          });
-          
-          console.log('✅ Welcome message sent\n');
-        } catch (err) {
-          console.log('⚠️  Could not send welcome message:', err.message);
-        }
+_Powered by Groq AI & WhatsApp_`;
+
+            await sock.sendMessage(botJid, {
+              image: { url: welcomeImage },
+              caption: welcomeText
+            });
+            
+            console.log('✅ Welcome message sent to self\n');
+          } catch (err) {
+            console.log('⚠️  Could not send welcome message:', err.message);
+          }
+        }, 5000);
       }
     });
 
-    // FIXED: Proper message event handling
     sock.ev.on('messages.upsert', async ({ messages, type }) => {
       if (type !== 'notify') return;
       
       for (const msg of messages) {
-        // Process each message
         try {
           await messageHandler.handleMessage(sock, msg);
         } catch (err) {
@@ -186,7 +203,6 @@ https://github.com/amanmohdtp/Forty-Six.git`;
       }
     });
 
-    // Auto-reject calls
     sock.ev.on('call', async (calls) => {
       for (const call of calls) {
         if (call.status === 'offer') {
@@ -208,7 +224,16 @@ https://github.com/amanmohdtp/Forty-Six.git`;
   }
 };
 
-console.log(`🤖 ${config.BOT_NAME} starting...`);
+console.clear();
+console.log(`\n🤖 ${config.BOT_NAME} starting...\n`);
+
+const alreadyAuthenticated = fs.existsSync(path.join(authDir, 'creds.json'));
+if (alreadyAuthenticated) {
+  console.log('✓ Found existing session, connecting...\n');
+} else {
+  console.log('⚠️  No session found, will request pairing code...\n');
+}
+
 startBot();
 
 process.on('SIGINT', () => {
