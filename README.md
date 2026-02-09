@@ -1,3 +1,6 @@
+> [!CAUTION]
+> BOT IS CURRENTLY NOT WORKING!
+
 # 🤖 Forty-Six - Configurable WhatsApp AI Bot
 
 A clean, configurable WhatsApp AI chatbot built with Baileys and Groq AI. Simple setup, powerful features.
